@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <title>東京外国語大学生活ガチャ</title>
+  <link rel="stylesheet" href="style.css">
+<script src="abroad.js" defer></script>
+<script src="graduation.js" defer></script>
+<script src="requirements.js" defer></script>
+<script src="events.js" defer></script>
+<script src="relationships.js" defer></script>
+<script src="results.js" defer></script>
+<script src="app.js" defer></script>
+<script src="balance-test.js" defer></script>
+<main class="container">
+    <header>
+      <p class="subtitle">TUFS LIFE SIMULATOR</p>
+      <h1>東京外国語大学生活ガチャ</h1>
+      <p>あなたはどんな4年間を過ごす？</p>
+    </header>
+
+    <section id="start-screen" class="panel">
+      <h2>大学生活を始めよう！</h2>
+      <p>まずは入学する学部と専攻を選ぼう。</p>
+
+      <div class="selection">
+        <label for="faculty-select">学部</label>
+        <select id="faculty-select">
+          <option value="">学部を選択してください</option>
+        </select>
+
+        <label id="major-label" for="major-select">
+          専攻語・地域
+        </label>
+        <select id="major-select" disabled>
+          <option value="">先に学部を選択してください</option>
+        </select>
+      </div>
+
+      <button id="start-button" disabled>
+        この学部・専攻で入学する
+      </button>
+
+      <button id="continue-button" class="secondary" hidden>
+        セーブデータから再開
+      </button>
+    </section>
+
+    <section id="game-screen" class="panel" hidden>
+      <p id="turn-label">1年生・4月</p>
+      <h2>入学おめでとう！</h2>
+
+      <div class="result">
+        <p>あなたの所属は……</p>
+        <h2 id="faculty-result"></h2>
+        <h3 id="major-result"></h3>
+      </div>
+
+      
+<div class="academic-panel">
+  <h3>学業成績</h3>
+
+  <p>
+    累積GPA：
+    <strong id="gpa-value">未確定</strong>
+    / 4.0
+  </p>
+
+  <p>
+    取得単位：
+    <strong id="credits-value">0</strong>
+    / 125単位
+  </p>
+
+  <p class="note">
+    ※125単位はゲーム内の仮基準です。
+  </p>
+</div>
+
+<h3>現在のステータス</h3>
+<div id="stats"></div>
+<section id="degree-requirements"
+         class="academic-panel">
+</section>
+
+<section id="event-panel" class="event-panel">
+  <p id="event-number"></p>
+  <h2 id="event-title"></h2>
+  <p id="event-description"></p>
+
+  <div id="choice-buttons"></div>
+
+  <div id="event-result" class="event-result" hidden>
+    <h3>選択結果</h3>
+    <p id="result-choice"></p>
+    <p id="result-effects"></p>
+    <p id="result-luck"></p>
+  </div>
+
+  <button id="next-button" hidden>
+    次のイベントへ
+  </button>
+</section>
+
+<section id="relationship-panel" class="relationship-panel" hidden>
+  <h3>🤝 友情・恋愛</h3>
+
+  <div class="relationship-stats">
+    <p>
+      友情度：
+      <strong id="friendship-value">25</strong> / 100
+    </p>
+    <p>
+      恋愛度：
+      <strong id="romance-value">0</strong> / 100
+    </p>
+  </div>
+
+  <p id="relationship-status"></p>
+
+  <div id="relationship-event" hidden>
+    <h3 id="relationship-event-title"></h3>
+    <p id="relationship-event-description"></p>
+    <div id="relationship-options"></div>
+  </div>
+
+  <p id="relationship-message" hidden></p>
+</section>
+
+
+      <p class="note">
+        ゲームデータはこのブラウザに保存されます。
+      </p>
+
+<section id="final-result" class="final-result" hidden>
+  <p class="final-caption">GRADUATION RESULT</p>
+
+  <h2 id="final-heading"></h2>
+  <h3 id="final-title"></h3>
+  <p id="final-faculty"></p>
+
+  <div class="final-score-box">
+    <p>大学生活総合スコア</p>
+    <strong id="final-score">0</strong>
+    <span> / 100</span>
+  </div>
+
+  <h3>4年間の成果</h3>
+
+  <div class="final-grid">
+    <div>
+      <p>累積GPA</p>
+      <strong id="final-gpa"></strong>
+    </div>
+
+    <div>
+      <p>取得単位</p>
+      <strong id="final-credits"></strong>
+    </div>
+
+    <div>
+      <p>友情度</p>
+      <strong id="final-friendship"></strong>
+    </div>
+
+    <div>
+      <p>恋愛度</p>
+      <strong id="final-romance"></strong>
+    </div>
+  </div>
+
+  <h3>獲得称号</h3>
+  <div id="final-awards"></div>
+
+  <h3>留学経験</h3>
+  <p id="final-abroad"></p>
+
+  <h3>卒業後の進路</h3>
+  <p id="final-career"></p>
+</section>
+
+      <button id="back-button" class="secondary">
+        タイトルに戻る
+      </button>
+    </section>
+
+    <footer>非公式ファン制作ゲーム</footer>
+  </main>
+</body>
+</html>

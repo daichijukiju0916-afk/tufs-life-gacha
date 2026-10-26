@@ -1,0 +1,400 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Yu Gothic", "Meiryo", sans-serif;
+  background: #eef2f8;
+  color: #223047;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+header {
+  background: linear-gradient(135deg, #12264c, #355d9b);
+  color: white;
+  padding: 35px 20px;
+  text-align: center;
+  border-radius: 18px;
+  margin-bottom: 24px;
+}
+
+header h1 {
+  font-size: clamp(24px, 5vw, 34px);
+}
+
+.subtitle {
+  letter-spacing: 3px;
+  font-size: 12px;
+}
+
+.panel {
+  background: white;
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: 0 5px 20px #182b4910;
+  text-align: center;
+}
+
+button {
+  display: block;
+  width: 100%;
+  margin: 16px 0 0;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  background: #244e94;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3867b5;
+}
+
+button.secondary {
+  background: #e7ecf3;
+  color: #243854;
+}
+
+.result {
+  background: #f0f5ff;
+  border-radius: 14px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.result h2 {
+  color: #174992;
+}
+
+.stat {
+  margin: 15px 0;
+  text-align: left;
+}
+
+.stat-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.bar {
+  background: #e2e8f0;
+  border-radius: 20px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #4987df;
+  border-radius: 20px;
+}
+
+.note, footer {
+  color: #78869a;
+  font-size: 12px;
+  margin-top: 25px;
+}
+
+footer {
+  text-align: center;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* 学部・専攻の選択欄 */
+
+.selection {
+  margin: 25px 0;
+  text-align: left;
+}
+
+.selection label {
+  display: block;
+  font-weight: bold;
+  margin: 18px 0 8px;
+}
+
+.selection select {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #c9d3e2;
+  border-radius: 10px;
+  background: #fff;
+  color: #223047;
+  font-size: 16px;
+}
+
+.selection select:focus {
+  outline: 2px solid #4987df;
+}
+
+button:disabled {
+  background: #aab5c6;
+  cursor: not-allowed;
+}
+
+.selection select:disabled {
+  background: #eef1f5;
+  color: #697586;
+}
+
+/* 大学生活イベント */
+
+.event-panel {
+  margin-top: 30px;
+  padding: 24px 16px;
+  background: #f6f9ff;
+  border: 1px solid #d6e2f5;
+  border-radius: 16px;
+}
+
+#event-number {
+  font-size: 13px;
+  color: #6684b3;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+#event-title {
+  color: #174992;
+}
+
+#event-description {
+  line-height: 1.8;
+  margin-bottom: 22px;
+}
+
+.choice-button {
+  background: white;
+  color: #244e94;
+  border: 2px solid #b6c8e4;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.choice-button:hover {
+  background: #e3edff;
+}
+
+.event-result {
+  background: #e7f5eb;
+  border: 1px solid #b5dfc0;
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 20px;
+}
+
+#result-effects {
+  font-weight: bold;
+  color: #236d43;
+  line-height: 1.8;
+}
+
+#next-button {
+  margin-top: 20px;
+}
+
+/* GPA・単位の表示 */
+
+.academic-panel {
+  background: #fff8e9;
+  border: 1px solid #ead6a4;
+  border-radius: 14px;
+  padding: 18px;
+  margin: 22px 0;
+}
+
+.academic-panel h3 {
+  color: #795319;
+  margin-top: 0;
+}
+
+.academic-panel strong {
+  font-size: 24px;
+  color: #9b681b;
+}
+
+.academic-panel .note {
+  margin-top: 12px;
+}
+
+/* 友情・恋愛システム */
+
+.relationship-panel {
+  margin-top: 25px;
+  padding: 24px;
+  background: #fff3f7;
+  border: 1px solid #f0c9d8;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.relationship-panel h3 {
+  color: #a94372;
+}
+
+.relationship-stats {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  margin: 18px 0;
+}
+
+.relationship-stats p {
+  margin: 12px 0;
+}
+
+.relationship-stats strong {
+  font-size: 22px;
+  color: #be5281;
+}
+
+#relationship-status {
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+#relationship-event {
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+}
+
+#relationship-event-description {
+  line-height: 1.8;
+}
+
+.relationship-choice {
+  background: #fff;
+  border: 2px solid #e5b5cb;
+  color: #9b3467;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.relationship-choice:hover {
+  background: #ffe3ee;
+}
+
+#relationship-message {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  color: #9b3467;
+  font-weight: bold;
+  line-height: 1.8;
+}
+
+
+/* 卒業結果画面 */
+
+.final-result {
+  margin-top: 30px;
+  padding: 25px;
+  background: #f6f8ff;
+  border: 2px solid #8faee0;
+  border-radius: 18px;
+  text-align: center;
+}
+
+.final-caption {
+  color: #45689c;
+  font-size: 12px;
+  letter-spacing: 3px;
+  font-weight: bold;
+}
+
+#final-title {
+  color: #244e94;
+  font-size: 24px;
+}
+
+.final-score-box {
+  background: #203d75;
+  color: white;
+  padding: 25px;
+  border-radius: 16px;
+  margin: 24px 0;
+}
+
+.final-score-box strong {
+  font-size: 64px;
+}
+
+.final-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.final-grid > div {
+  background: white;
+  border-radius: 12px;
+  padding: 15px 8px;
+}
+
+.final-grid p {
+  font-size: 13px;
+  color: #68768c;
+}
+
+.final-grid strong {
+  font-size: 25px;
+  color: #244e94;
+}
+
+#final-awards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.final-award {
+  background: #e3ecfc;
+  color: #244e94;
+  border: 1px solid #b5c9ee;
+  padding: 8px 12px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+#final-career,
+#final-abroad {
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  line-height: 1.8;
+}
+
+/* 科目別卒業要件 */
+
+.degree-category {
+  padding: 9px 0;
+  text-align: left;
+  font-size: 14px;
+}
+
+.degree-category progress {
+  display: block;
+  width: 100%;
+  height: 12px;
+  margin-top: 5px;
+  accent-color: #438bd5;
+}

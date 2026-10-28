@@ -59,10 +59,9 @@ function getFinalAwards(game) {
     awards.push("外語祭の功労者");
   }
 
-  if ((game.credits ?? 0) >= 125) {
-    awards.push("卒業達成");
-  }
-
+  if (meetsDegreeRequirements(game)) {
+  awards.push("卒業達成");
+}
   if (awards.length === 0) {
     awards.push("自分らしく生きた外大生");
   }
@@ -72,7 +71,7 @@ function getFinalAwards(game) {
 
 function getFinalTitle(game) {
   const s = game.stats;
-  const graduated = (game.credits ?? 0) >= 125;
+  const graduated = meetsDegreeRequirements(game);
 
   if (!graduated) {
     return "挑戦を続ける外大生";
@@ -116,7 +115,7 @@ function renderFinalResult(game) {
 
   if (!completed) return;
 
-  const graduated = (game.credits ?? 0) >= 125;
+  const graduated = meetsDegreeRequirements(game);
 
   document.getElementById("final-heading").textContent =
   graduated

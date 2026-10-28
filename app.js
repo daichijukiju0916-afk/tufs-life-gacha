@@ -55,10 +55,32 @@ const facultyData = {
     ]
   },
 
+
+
   "国際日本学部": {
     label: "学科",
     majors: ["国際日本学科"]
   }
+};
+const socialLanguages = {
+  "北西ヨーロッパ・北アメリカ": ["英語"],
+  "中央ヨーロッパ": ["ドイツ語", "ポーランド語", "チェコ語"],
+  "西南ヨーロッパ": ["フランス語", "イタリア語"],
+  "イベリア・ラテンアメリカ": ["スペイン語", "ポルトガル語"],
+  "ロシア": ["ロシア語"],
+  "中央アジア": ["ロシア語およびウズベク語", "モンゴル語"],
+  "東アジア": ["中国語", "朝鮮語"],
+  "東南アジア第1（島嶼部）": [
+    "インドネシア語", "マレーシア語", "フィリピン語"
+  ],
+  "東南アジア第2（大陸部）": [
+    "タイ語", "ラオス語", "ベトナム語",
+    "カンボジア語", "ビルマ語"
+  ],
+  "南アジア": ["ウルドゥー語", "ヒンディー語", "ベンガル語"],
+  "中東": ["アラビア語", "ペルシア語", "トルコ語"],
+  "アフリカ": ["英語"],
+  "オセアニア": ["英語"]
 };
 
 // ステータス
@@ -74,6 +96,8 @@ const statNames = [
 const facultySelect = document.getElementById("faculty-select");
 const majorSelect = document.getElementById("major-select");
 const majorLabel = document.getElementById("major-label");
+const languageSelect = document.getElementById("language-select");
+const languageLabel = document.getElementById("language-label");
 const startButton = document.getElementById("start-button");
 const continueButton = document.getElementById("continue-button");
 const startScreen = document.getElementById("start-screen");
@@ -117,25 +141,58 @@ function updateMajors() {
     majorSelect.disabled = false;
   }
 
+  updateLanguages();
+}
+
+function updateLanguages() {
+  const isSocial = facultySelect.value === "国際社会学部";
+
+  languageLabel.hidden = !isSocial;
+  languageSelect.hidden = !isSocial;
+  languageSelect.replaceChildren();
+  languageSelect.disabled = true;
+
+  if (isSocial) {
+    languageSelect.add(
+      new Option("専攻言語を選択してください", "")
+    );
+
+    const languages = socialLanguages[majorSelect.value] || [];
+
+    languages.forEach(language => {
+      languageSelect.add(new Option(language, language));
+    });
+
+    languageSelect.disabled = languages.length === 0;
+
+    // その地域の言語が1つなら自動選択
+    if (languages.length === 1) {
+      languageSelect.value = languages[0];
+    }
+  }
+
   updateStartButton();
 }
 
 function updateStartButton() {
+  const isSocial = facultySelect.value === "国際社会学部";
+
   startButton.disabled = !(
-    facultySelect.value && majorSelect.value
+    facultySelect.value &&
+    majorSelect.value &&
+    (!isSocial || languageSelect.value)
   );
 }
-
 facultySelect.addEventListener("change", updateMajors);
-majorSelect.addEventListener("change", updateStartButton);
-
+majorSelect.addEventListener("change", updateLanguages);
+languageSelect.addEventListener("change", updateStartButton);
 // 乱数
 function randomNumber(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // ゲームの初期データ
-function createGame(faculty, major) {
+function createGame(faculty, major, language = null) {
   const stats = {};
 
   statNames.forEach(name => {
@@ -146,6 +203,9 @@ function createGame(faculty, major) {
     version: 2,
     faculty: faculty,
     major: major,
+language: faculty === "国際社会学部"
+  ? language
+  : faculty === "言語文化学部" ? major : null,
     majorType: facultyData[faculty].label,
     year: 1,
     turn: 1,
@@ -209,9 +269,11 @@ function renderGame(game) {
   document.getElementById("faculty-result").textContent =
     game.faculty;
 
-  document.getElementById("major-result").textContent =
-    `${game.majorType}：${game.major}`;
-
+ document.getElementById("major-result").textContent =
+  `${game.majorType}：${game.major}` +
+  (game.faculty === "国際社会学部" && game.language
+    ? `／専攻言語：${game.language}`
+    : "");
   document.getElementById("turn-label").textContent =
     `${game.year}年生・第${game.turn}ターン`;
 
@@ -249,13 +311,24 @@ function renderGame(game) {
   });
 
       renderEvent(game);
-renderRelationshipPanel(game);
-renderDegreeRequirements(game);
+renderLifeEvent(game);
+renderCourseRegistration(game);
+renderCategoryProgress(game);
 renderFinalResult(game);
 }// 新規ゲーム
 startButton.addEventListener("click", () => {
   const faculty = facultySelect.value;
   const major = majorSelect.value;
+const language = faculty === "国際社会学部"
+  ? languageSelect.value
+  : null;
+
+if (
+  faculty === "国際社会学部" &&
+  !socialLanguages[major]?.includes(language)
+) {
+  return;
+}
 
   if (!facultyData[faculty]) return;
   if (!facultyData[faculty].majors.includes(major)) return;
@@ -267,7 +340,7 @@ startButton.addEventListener("click", () => {
     return;
   }
 
-  const game = createGame(faculty, major);
+ const game = createGame(faculty, major, language);
   saveGame(game);
   renderGame(game);
 });

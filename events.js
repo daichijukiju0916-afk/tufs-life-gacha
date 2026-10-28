@@ -770,7 +770,7 @@ function assessSemester(game) {
   game.semesterRecords ||= [];
 
   const term = game.turn === 3 ? "春学期" : "秋学期";
-  const key = `${game.year}-${term}`;
+  const key = courseTermKey(game);
 
   // 二重計算を防止
   if (game.semesterRecords.some(r => r.key === key)) {
@@ -778,6 +778,11 @@ function assessSemester(game) {
   }
   // 休学留学中は通常の国内授業成績を計算しない
   if (isStudyLeaveYear(game)) {
+    return;
+  }
+  // 手動で履修登録した学期は、登録済みの科目を使って成績計算
+  if (assessRegisteredCourses(game, key, term)) {
+    game.gradeNotice.key = key;
     return;
   }
 
@@ -898,6 +903,7 @@ while (remaining > 0) {
     : null;
 
   game.gradeNotice = {
+    key,
     year: game.year,
     term,
     gpa,
@@ -1076,8 +1082,17 @@ function renderEvent(game) {
     number.textContent = "成績発表";
     title.textContent = `${r.year}年次・${r.term}`;
     description.textContent =
-      `学期GPA：${r.gpa.toFixed(2)} / 4.0、` +
+      `学期GPA：${Number.isFinite(r.gpa) ? r.gpa.toFixed(2) : "未評価"} / 4.0、` +
       `取得単位：${r.earned}単位`;
+    const semester = (game.semesterRecords || []).find(record =>
+      record.key === (r.key || `${r.year}-${r.term}`));
+    if (semester?.courseGrades?.length) {
+      description.style.whiteSpace = "pre-line";
+      description.textContent += "\n" + semester.courseGrades.map(course =>
+        `${course.name}：${course.score == null ? "単位未確認・成績対象外" :
+          (course.passed ? "合格" : "不合格") + "（" + course.score + "点）"}`
+      ).join("\n");
+    }
 
     buttons.hidden = true;
     next.textContent = "次へ進む";
@@ -1095,6 +1110,21 @@ function renderEvent(game) {
     game.yearOneComplete ? 1 : 0;
 
   if (endYear > 0) {
+    // STEP23: 2年次末に専攻語・必修単位の進級判定
+    if (endYear === 2 && typeof step23Progression === "function") {
+      const check = step23Progression(game);
+      if (check.applicable && !check.passed) {
+        buttons.hidden = true;
+        number.textContent = "PROGRESSION REVIEW";
+        title.textContent = "3年次への進級要件が未達";
+        description.style.whiteSpace = "pre-line";
+        description.textContent = check.message;
+        turnLabel.textContent = "2年次末・進級判定";
+        next.textContent = "2年生を再履修する";
+        next.hidden = false;
+        return;
+      }
+    }
     buttons.hidden = true;
     turnLabel.textContent = `${endYear}年目終了`;
 
@@ -1104,15 +1134,15 @@ function renderEvent(game) {
     if (isGameFinished(game)) {
       number.textContent = "FINAL RESULT";
 
-      title.textContent = credits >= 125
-        ? `${endYear}年で卒業！`
-        : "卒業要件がまだ足りない";
+      
+title.textContent = meetsDegreeRequirements(game)
+  ? `${endYear}年で卒業！`
+  : "卒業要件がまだ足りない";
 
-      description.textContent = credits >= 125
-        ? `${credits}単位を取得して大学を卒業した。`
-        : `6年目が終了したが、取得単位は${credits}単位。` +
-          "このバージョンではここで終了します。";
-
+description.textContent = meetsDegreeRequirements(game)
+  ? `${credits}単位を取得し、卒業要件を満たした。`
+  : `6年目が終了したが、卒業要件を満たせなかった。` +
+    "このバージョンではここで終了します。";
       return;
     }
 
@@ -1121,21 +1151,17 @@ function renderEvent(game) {
       number.textContent = "GRADUATION EXTENSION";
       title.textContent = "5年目の大学生活へ";
 
-      description.textContent = wantsStudyLeave(game)
-        ? "休学留学を選んだため、5年目に海外生活を送る。"
-        : `現在${credits}単位。125単位まで不足しているため、再履修に挑戦する。`;
+      
+const degreeCheck = getDegreeCheck(game);
 
-      next.textContent = "5年目へ進む";
-      next.hidden = false;
-      return;
-    }
-
-    // 5年目でも卒業できない場合
-    if (endYear === 5) {
-      number.textContent = "GRADUATION EXTENSION";
-      title.textContent = "6年目の大学生活へ";
-      description.textContent =
-        `現在${credits}単位。卒業要件を満たすため、もう1年頑張ろう。`;
+description.textContent = wantsStudyLeave(game)
+  ? "休学留学を選んだため、5年目に海外生活を送る。"
+  : degreeCheck.missingTotal > 0
+    ? `現在${credits}単位。あと${degreeCheck.missingTotal}単位必要。`
+    : "合計単位は足りているが、必修科目が不足している。" +
+      degreeCheck.missingCategories
+        .map(c => `${c.name}：あと${c.remaining}単位`)
+        .join("、");
 
       next.textContent = "6年目へ進む";
       next.hidden = false;
@@ -1256,6 +1282,21 @@ document.getElementById("next-button")
       if (index === -1) return;
 
       const completedYear = index + 1;
+
+      // 2年次の進級要件未達なら、年度と単位記録を保ったまま2年次を再履修。
+      if (completedYear === 2 && typeof step23Progression === "function") {
+        const check = step23Progression(game);
+        if (check.applicable && !check.passed) {
+          game.repeatYears ||= {};
+          game.repeatYears[2] = (game.repeatYears[2] || 0) + 1;
+          game.yearTwoComplete = false;
+          game.year = 2;
+          game.turn = 1;
+          saveGame(game);
+          renderGame(game);
+          return;
+        }
+      }
 
       if (completedYear === 4) {
         game.extensionReason = wantsStudyLeave(game)

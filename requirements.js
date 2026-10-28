@@ -140,15 +140,183 @@ function makeSemesterPlan(game, registered) {
 
   const plan = plans[index];
 
-  // 5・6年目は暫定的に再履修として扱う
+  
+  // 5・6年目は不足している科目区分を優先して再履修
   if (!plan) {
-    return [
-      { name: "再履修・選択科目", remaining: registered }
-    ];
+    const rules =
+      degreeRequirements[game.faculty]?.categories || [];
+
+    const totals = {};
+
+    for (const record of game.semesterRecords || []) {
+      for (const [name, credits] of
+        Object.entries(record.categoryCredits || {})) {
+        totals[name] = (totals[name] || 0) + credits;
+      }
+    }
+
+    const repeatPlan = [];
+    let left = registered;
+
+    for (const rule of rules) {
+      const missing = Math.max(
+        0,
+        rule.min - (totals[rule.name] || 0)
+      );
+
+      const take = Math.min(left, missing);
+
+      if (take > 0) {
+        repeatPlan.push({
+          name: rule.name,
+          remaining: take
+        });
+
+        left -= take;
+      }
+
+      if (left === 0) break;
+    }
+
+    // 必修区分を満たした後の余りは選択科目
+    if (left > 0) {
+      repeatPlan.push({
+        name: "選択科目",
+        remaining: left
+      });
+    }
+
+    return repeatPlan;
   }
 
   return Object.entries(plan).map(([name, remaining]) => ({
     name,
     remaining
   }));
+}
+
+function renderCategoryProgress(game) {
+  const panel = document.getElementById("degree-requirements");
+  const rules = degreeRequirements[game.faculty];
+  if (!panel || !rules) return;
+
+  panel.replaceChildren();
+
+  const heading = document.createElement("h3");
+  heading.textContent = "卒業要件チェック";
+  panel.appendChild(heading);
+
+  const summary = document.createElement("p");
+  summary.textContent =
+    `総取得単位：${game.credits ?? 0} / ${rules.total}`;
+  panel.appendChild(summary);
+
+  if (!rules.categories) {
+    const note = document.createElement("p");
+    note.className = "note";
+    note.textContent = "この学部の科目別要件は準備中です。";
+    panel.appendChild(note);
+    return;
+  }
+
+  const totals = {};
+  let unknown = 0;
+
+  for (const record of game.semesterRecords || []) {
+    if (!record.categoryCredits) {
+      unknown += record.earned || 0;
+      continue;
+    }
+
+    for (const [name, units] of
+      Object.entries(record.categoryCredits)) {
+      totals[name] = (totals[name] || 0) + units;
+    }
+  }
+
+  for (const rule of rules.categories) {
+    const have = totals[rule.name] || 0;
+
+    const item = document.createElement("div");
+    item.className = "degree-category";
+
+    const label = document.createElement("div");
+    label.textContent =
+      `${rule.name}：${have} / ${rule.min}単位` +
+      (have >= rule.min ? " ✓" : "");
+
+    const bar = document.createElement("progress");
+    bar.max = rule.min;
+    bar.value = Math.min(have, rule.min);
+
+    item.append(label, bar);
+    panel.appendChild(item);
+  }
+
+  if (unknown > 0) {
+    const oldNote = document.createElement("p");
+    oldNote.className = "note";
+    oldNote.textContent =
+      `旧セーブの${unknown}単位は科目内訳が未記録のため、` +
+      "上の区分別表示には含めていません。";
+    panel.appendChild(oldNote);
+  }
+
+  const note = document.createElement("p");
+  note.className = "note";
+  note.textContent =
+    "科目別の取得状況はゲーム用の仮モデルです。" +
+    "卒業判定はまだ従来の合計単位数で行います。";
+  panel.appendChild(note);
+}
+
+function getDegreeCheck(game) {
+  const rules = degreeRequirements[game.faculty];
+  const credits = game.credits ?? 0;
+  const required = rules?.total ?? 125;
+  const records = game.semesterRecords || [];
+
+  const recordedCredits = records.reduce(
+    (sum, r) => sum + (r.earned || 0), 0
+  );
+
+  // 旧セーブは科目別の履修記録が不足している
+  const legacy =
+    records.some(r => !r.categoryCredits) ||
+    recordedCredits < credits;
+
+  const totals = {};
+
+  for (const record of records) {
+    for (const [name, value] of
+      Object.entries(record.categoryCredits || {})) {
+      totals[name] = (totals[name] || 0) + value;
+    }
+  }
+
+  const missingCategories =
+    rules?.categories && !legacy
+      ? rules.categories
+          .map(rule => ({
+            name: rule.name,
+            remaining: Math.max(
+              0,
+              rule.min - (totals[rule.name] || 0)
+            )
+          }))
+          .filter(item => item.remaining > 0)
+      : [];
+
+  return {
+    passed:
+      credits >= required &&
+      missingCategories.length === 0,
+    missingTotal: Math.max(0, required - credits),
+    missingCategories,
+    legacy
+  };
+}
+
+function meetsDegreeRequirements(game) {
+  return getDegreeCheck(game).passed;
 }

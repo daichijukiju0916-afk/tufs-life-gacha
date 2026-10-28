@@ -95,15 +95,17 @@ function wantsStudyLeave(game) {
   );
 }
 
-function needsFifthYear(game) {
-  return (game.credits || 0) < 125 || wantsStudyLeave(game);
-}
-
+// 5年目が休学留学に当たるかを判定する
 function isStudyLeaveYear(game) {
   return game.year === 5 &&
-         game.extensionReason === "study_leave";
+    (game.extensionReason === "study_leave" ||
+      (game.extensionReason == null && wantsStudyLeave(game)));
 }
 
+function needsFifthYear(game) {
+  return !meetsDegreeRequirements(game) ||
+         wantsStudyLeave(game);
+}
 function getExtraYearEvent(game) {
   if (game.year !== 5 && game.year !== 6) return null;
 
@@ -137,9 +139,8 @@ function isGameFinished(game) {
   }
 
   if (game.yearFiveComplete) {
-    return (game.credits || 0) >= 125;
-  }
-
+  return meetsDegreeRequirements(game);
+}
   // 6年目でこのバージョンのゲームは終了
   return !!game.yearSixComplete;
 }

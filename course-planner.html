@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>履修登録シミュレーター | 東京外国語大学生活ガチャ</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Yu Gothic",Meiryo,sans-serif;color:#1e293b;background:#f3f6fa}*{box-sizing:border-box}body{margin:0}main{max-width:1120px;padding:20px;margin:0 auto}h1{font-size:clamp(1.3rem,4vw,2rem);margin:.4rem 0}h2{font-size:1.15rem;margin:0 0 12px}.lead{color:#475569;line-height:1.7}.panel{background:#fff;border:1px solid #dfe6ee;border-radius:14px;padding:18px;margin:16px 0;box-shadow:0 2px 10px #17233c08}label{display:block;font-weight:650;font-size:.85rem;margin-bottom:5px}input,select,button{font:inherit}input,select{padding:10px;border:1px solid #cbd5e1;border-radius:9px;background:white;max-width:100%;width:100%}input:focus,select:focus,button:focus-visible{outline:3px solid #93c5fd}button{border:0;background:#155eaf;color:#fff;padding:9px 13px;border-radius:9px;cursor:pointer;font-weight:650}button:hover{filter:brightness(.94)}button:disabled{opacity:.45;cursor:not-allowed}.muted{color:#64748b;font-size:.84rem}.flex{display:flex;flex-wrap:wrap;gap:12px;align-items:end}.field{flex:1 1 150px}.row{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}.stats{display:flex;gap:12px;flex-wrap:wrap}.pill{background:#eef5ff;border-radius:9px;padding:9px 13px}.pill strong{display:block;font-size:1.1rem}.timetable-scroll{overflow:auto}.timetable{table-layout:fixed;width:100%;border-collapse:separate;border-spacing:3px;min-width:625px}.timetable th{font-size:.85rem;font-weight:600;text-align:center;padding:8px}.timetable td{background:#f8fafc;vertical-align:top;height:86px;border:1px solid #e2e8f0;border-radius:7px;padding:5px;text-align:center}.timetable td:first-child{width:38px;height:auto;background:#f0f3fa;font-weight:bold;vertical-align:middle}.course-chip{background:#dceafd;border:1px solid #a4c7fb;border-radius:6px;padding:6px 3px;font-size:.78rem;text-align:left;overflow-wrap:anywhere;min-height:50px}.course-chip button{background:transparent;color:#a12727;padding:0 4px;float:right}.catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:12px}.course{border:1px solid #e2e8f0;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}.course h3{font-size:1rem;margin:0}.course button{margin-top:auto;align-self:flex-start}.message{min-height:1.5em;font-weight:650;color:#134e9b}.danger{color:#b91c1c}.note{background:#f8fafc;border-left:3px solid #93a4b8;padding:10px;line-height:1.65;font-size:.86rem}.grid-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}.grid-form .wide{grid-column:1/-1}.small{font-size:.76rem}.source a{color:#155eaf}.secondary{background:#e8eef6;color:#1e293b}.warn{background:#fff9e6;padding:10px;border-radius:8px;color:#7c560b;font-size:.83rem}@media(max-width:560px){main{padding:10px}.panel{padding:13px}.catalog{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<p class="muted">TUFS LIFE SIMULATOR — 履修登録モード（試作版）</p>
+<h1>📚 自分で時間割を組もう</h1>
+<p class="lead">2026年度に大学が公表した時間割情報を初期収録。授業を追加し、曜日・時限の衝突を避けて自分だけの時間割を作れます。</p>
+<div class="warn">注意：これは非公式ファン制作のゲーム用機能です。実際の大学の履修登録は行われません。初期収録12授業は大学の「教養外国語の履修登録案内」掲載例で、全シラバスではありません。単位数はゲーム用ルールに基づき科目区分から自動設定します。</div>
+<section class="panel">
+<div class="row"><h2>学期と履修状況</h2><div class="flex"><div><label for="year">ゲーム内の学年</label><select id="year"><option value="1">1年生</option><option value="2">2年生</option><option value="3">3年生</option><option value="4">4年生</option><option value="5">5年目</option><option value="6">6年目</option></select></div><div><label for="term">学期</label><select id="term"><option value="春">春学期</option><option value="秋">秋学期</option></select></div></div></div>
+<div class="stats"><div class="pill">登録授業数<strong id="count">0</strong></div><div class="pill">履修単位数<strong id="total">0</strong></div><div class="pill">自動設定済み<strong id="unknown">0</strong></div></div>
+<p class="message" role="status" id="message"></p>
+<div class="timetable-scroll"><table class="timetable" aria-label="週間時間割"><thead><tr><th>限</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th></tr></thead><tbody id="schedule"></tbody></table></div>
+<div id="other-classes"></div>
+</section>
+<section class="panel"><h2>授業一覧から選択</h2><div class="flex"><div class="field"><label for="search">授業名・教員名を検索</label><input id="search" placeholder="例：朝鮮語、ドイツ語、国際関係" autocomplete="off"></div><div class="field"><label for="category-filter">科目区分</label><select id="category-filter"><option value="">すべて</option><option value="専攻言語">専攻言語</option><option value="教養外国語">教養外国語</option><option value="GLIP英語科目">GLIP英語科目</option><option value="諸地域言語">諸地域言語</option><option value="スポーツ科目">スポーツ科目</option><option value="言語科目">言語科目</option><option value="専門科目">専門科目</option><option value="教養科目">教養科目</option><option value="地域科目">地域科目</option><option value="その他">その他</option></select></div></div><div class="catalog" id="catalog"></div><p class="muted">同じ時限の授業は同時登録できません。公式掲載の授業は担当教員ごとに別のクラスとして扱います。</p></section>
+<section class="panel"><h2>シラバスで確認した授業を追加</h2><p class="muted">大学の<a href="https://gakumu-web1.tufs.ac.jp/portal/Public/Syllabus/SylSearchMain.aspx" target="_blank" rel="noopener noreferrer">公式シラバス検索</a>で確認し、下の項目を入力してください。未確認の項目は推測して入力しないでください。</p>
+<form id="course-form" class="grid-form"><div class="wide"><label for="course-title">授業名（必須）</label><input id="course-title" required maxlength="140" placeholder="シラバスに記載された授業名"></div><div><label for="course-teacher">担当教員</label><input id="course-teacher" maxlength="100"></div><div><label for="course-credits">単位数（区分から自動設定）</label><input id="course-credits" type="number" value="1" readonly></div><div><label for="course-category">科目区分</label><select id="course-category"><option>教養外国語</option><option>専攻言語</option><option>GLIP英語科目</option><option>諸地域言語</option><option>スポーツ科目</option><option>言語科目</option><option>教養科目</option><option>地域科目</option><option>専門科目</option><option>その他</option></select></div><div><label for="course-day">曜日</label><select id="course-day"><option>月</option><option>火</option><option>水</option><option>木</option><option>金</option><option>土</option><option value="集中">集中・オンデマンド等</option></select></div><div><label for="course-period">時限</label><select id="course-period"><option value="1">1限</option><option value="2">2限</option><option value="3">3限</option><option value="4">4限</option><option value="5">5限</option><option value="6">6限</option><option value="0">指定なし</option></select></div><div class="wide"><label for="course-source">シラバスURL（省略可）</label><input id="course-source" type="url" placeholder="https://..."></div><div class="wide"><button type="submit">今の学期の授業一覧に追加</button></div></form>
+<p class="note">保存した授業データと時間割は、このブラウザ内に保持されます。ゲーム本体のセーブデータとはまだ連動していません。後のステップでGPA・単位計算へ接続します。</p>
+</section>
+<section class="panel"><div class="row"><h2>データの保存</h2><div class="flex"><button id="export" type="button" class="secondary">履修データをJSONで保存</button><button id="import-trigger" type="button" class="secondary">以前のデータを読込</button><input id="import-file" type="file" accept=".json,application/json" hidden></div></div><p class="muted">自動保存に加え、JSON形式で控えを保存できます。個人情報・学籍番号などは入力しないでください。</p></section>
+<footer class="muted">公式データの参照元：<a href="https://www.tufs.ac.jp/student/NEWS/education/260331_3.html" target="_blank" rel="noopener noreferrer">2026春学期の教養外国語案内</a>・<a href="https://www.tufs.ac.jp/student/NEWS/education/260831_3.html" target="_blank" rel="noopener noreferrer">2026秋学期の教養外国語案内</a></footer>
+</main>
+<script>
+"use strict";
+// 大学公式の2026年度教養外国語「履修登録案内」に掲載された12クラス。
+// 単位数は科目区分のゲームルールにより自動設定する。
+const verified = [
+  ["春","ドイツ語A1","月",4,"櫻井 麻美"],
+  ["春","ドイツ語A1","木",4,"杉山 香織"],
+  ["春","ドイツ語A3","火",4,"津山 拓也"],
+  ["春","ドイツ語A3","木",5,"岡本 雅克"],
+  ["春","朝鮮語A1","月",4,"五十嵐孔一"],
+  ["春","朝鮮語A1","金",4,"阪堂千津子"],
+  ["秋","ドイツ語A2","月",4,"櫻井 麻美"],
+  ["秋","ドイツ語A2","木",4,"杉山 香織"],
+  ["秋","ドイツ語A4","火",4,"津山 拓也"],
+  ["秋","ドイツ語A4","木",5,"岡本 雅克"],
+  ["秋","朝鮮語A2","月",4,"五十嵐孔一"],
+  ["秋","朝鮮語A2","金",4,"阪堂千津子"]
+].map(([term,name,day,period,teacher],i)=>({id:`official-2026-${i+1}`,term,name,day,period,teacher,credits:1,category:"教養外国語",official:true,source:term==="春"?"https://www.tufs.ac.jp/student/NEWS/education/260331_3.html":"https://www.tufs.ac.jp/student/NEWS/education/260831_3.html"}));
+const KEY="tufs-course-planner-v1";
+const $=id=>document.getElementById(id);
+const days=["月","火","水","木","金","土"];
+let data={added:[],choices:{}};
+try {const saved=JSON.parse(localStorage.getItem(KEY)||"null"); if(saved&&Array.isArray(saved.added)&&saved.choices&&typeof saved.choices==="object") data=saved;}catch(e){console.warn("保存データの読み込みに失敗",e)}
+const selectedKey=()=>`${$("year").value}-${$("term").value}`;
+const oneCreditCategories=new Set(["専攻言語","専攻言語科目","教養外国語","教養外国語科目","GLIP","GLIP英語","GLIP英語科目","諸地域言語","諸地域言語科目","スポーツ","スポーツ科目","言語科目"]);
+const unitByCategory=c=>oneCreditCategories.has(String(c||"").trim())?1:2;
+const catalogCourses=()=>[...verified,...data.added].map(c=>({...c,credits:unitByCategory(c.category)}));
+const currentIds=()=>data.choices[selectedKey()]||[];
+const selected=()=>currentIds().map(id=>catalogCourses().find(c=>c.id===id)).filter(Boolean);
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){notice("保存に失敗しました。ブラウザの保存設定を確認してください。",true)}}
+function notice(s,error=false){$("message").textContent=s;$("message").classList.toggle("danger",error)}
+function slot(c){return c.day==="集中"||!c.period?null:`${c.day}-${c.period}`}
+function addCourse(id){const c=catalogCourses().find(c=>c.id===id);if(!c)return;const list=currentIds();if(list.includes(id)){notice("すでに登録されています。",true);return;}const conflict=selected().find(x=>slot(x)&&slot(x)===slot(c));if(conflict){notice(`${c.day}曜${c.period}限は「${conflict.name}」と重複しています。`,true);return;}data.choices[selectedKey()]=[...list,id];save();notice(`「${c.name}」を登録しました。`);render();}
+function removeCourse(id){data.choices[selectedKey()]=currentIds().filter(x=>x!==id);save();notice("登録を取り消しました。");render();}
+function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+function renderSchedule(){const s=selected();$("count").textContent=s.length;$("total").textContent=s.filter(x=>Number.isFinite(x.credits)).reduce((a,x)=>a+x.credits,0);$("unknown").textContent=s.filter(x=>!Number.isFinite(x.credits)).length;const body=$("schedule");body.replaceChildren();for(let p=1;p<=6;p++){const tr=el("tr");tr.append(el("td",p));for(const day of days){const td=el("td");const c=s.find(x=>x.day===day&&x.period===p);if(c){const chip=el("div",null,"course-chip");const b=el("button","×");b.type="button";b.title="履修を取り消す";b.addEventListener("click",()=>removeCourse(c.id));chip.append(b,el("strong",c.name),el("div",c.teacher||"担当未入力","small"));td.append(chip);}tr.append(td)}body.append(tr)}const other=s.filter(c=>!slot(c));const box=$("other-classes");box.replaceChildren();if(other.length){box.append(el("strong","集中・曜日時限未指定の授業"));for(const c of other){const row=el("p",`${c.name}（${c.teacher||"担当未入力"}） `);const b=el("button","取り消す","secondary");b.addEventListener("click",()=>removeCourse(c.id));row.append(b);box.append(row)}}}
+function renderCatalog(){const query=$("search").value.toLowerCase().trim();const cat=$("category-filter").value;const list=catalogCourses().filter(c=>c.term===$("term").value&&(!cat||c.category===cat)&&(!query||`${c.name} ${c.teacher} ${c.category}`.toLowerCase().includes(query)));const box=$("catalog");box.replaceChildren();if(!list.length){box.append(el("p","該当する授業はありません。シラバスで確認した授業を下のフォームから追加できます。","muted"));return;}for(const c of list){const card=el("article",null,"course");card.append(el("h3",c.name),el("div",`${c.day}曜 ${c.period?`${c.period}限`:"指定なし"} ／ ${c.teacher||"担当未入力"}`,"muted"),el("div",`${c.category} ／ ${c.credits}単位（自動設定）`,"muted"));const source=el("div",null,"source small");const a=el("a",c.official?"公式の授業案内":"参照先を開く");a.href=c.source||"#";a.target="_blank";a.rel="noopener noreferrer";if(c.source)source.append(a);else source.textContent="入力した科目";card.append(source);const b=el("button",currentIds().includes(c.id)?"登録済み":"履修登録");b.disabled=currentIds().includes(c.id);b.addEventListener("click",()=>addCourse(c.id));card.append(b);box.append(card)}}
+function render(){renderSchedule();renderCatalog()}
+$("year").addEventListener("change",()=>{notice("");render()});$("term").addEventListener("change",()=>{notice("");render()});$("search").addEventListener("input",renderCatalog);$("category-filter").addEventListener("change",renderCatalog);
+$("course-form").addEventListener("submit",e=>{e.preventDefault();const name=$("course-title").value.trim(),teacher=$("course-teacher").value.trim(),credits=unitByCategory($("course-category").value),day=$("course-day").value,period=Number($("course-period").value),source=$("course-source").value.trim();if(!name){notice("授業名を確認してください。",true);return;}if(source&&!/^https?:\/\//i.test(source)){notice("参照URLは http:// または https:// で入力してください。",true);return;}const c={id:`custom-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,term:$("term").value,name,teacher,credits,day,period,category:$("course-category").value,source,official:false};data.added.push(c);save();$("course-form").reset();notice(`「${name}」を今の学期の候補一覧に追加しました。履修する場合は一覧から登録してください。`);render()});
+$("export").addEventListener("click",()=>{const dataBlob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(dataBlob);const a=document.createElement("a");a.href=url;a.download="tufs-course-planner-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+$("import-trigger").addEventListener("click",()=>$("import-file").click());$("import-file").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>2_000_000)throw new Error("ファイルが大きすぎます");const v=JSON.parse(await file.text());if(!Array.isArray(v.added)||!v.choices||typeof v.choices!=="object")throw new Error("保存形式が違います");data=v;save();notice("履修データを読み込みました。");render()}catch(e){notice(`読み込み失敗：${e.message}`,true)}e.target.value=""});
+$("course-category").addEventListener("change",()=>{$("course-credits").value=unitByCategory($("course-category").value)});
+$("course-credits").value=unitByCategory($("course-category").value);
+render();
+</script>
+</body>
+</html>

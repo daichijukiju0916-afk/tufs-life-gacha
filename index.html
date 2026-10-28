@@ -13,8 +13,16 @@
 <script src="events.js" defer></script>
 <script src="relationships.js" defer></script>
 <script src="results.js" defer></script>
+<script src="clubs.js" defer></script>
+<script src="life-events.js" defer></script>
+<script src="tufs-catalog-2026.js" defer></script>
+<script src="tufs-major-language.js" defer></script>
+<script src="progression.js" defer></script>
+<script src="course-registration.js" defer></script>
 <script src="app.js" defer></script>
 <script src="balance-test.js" defer></script>
+</head>
+<body>
 <main class="container">
     <header>
       <p class="subtitle">TUFS LIFE SIMULATOR</p>
@@ -38,6 +46,13 @@
         <select id="major-select" disabled>
           <option value="">先に学部を選択してください</option>
         </select>
+<label id="language-label" for="language-select" hidden>
+  専攻言語
+</label>
+
+<select id="language-select" hidden disabled>
+  <option value="">専攻地域を選択してください</option>
+</select>
       </div>
 
       <button id="start-button" disabled>
